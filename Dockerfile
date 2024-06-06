@@ -1,3 +1,12 @@
+#Assign image to use
+#FROM advrisc/u20.04-rklbv1
+#FROM advrisc/u20.04-rklbv1     #Yocto 4.0
+#FROM advrisc/u18.04-imx8lbv1   #Yocto 3.0
+FROM advrisc/u18.04-imx8lbv1
+
+#Maintainer Info
+MAINTAINER adv
+
 #Run commands
 RUN sudo apt-get update -y
 RUN sudo apt install gawk wget git diffstat unzip texinfo gcc build-essential \
