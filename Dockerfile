@@ -7,9 +7,9 @@ MAINTAINER adv
 
 #Run commands
 RUN sudo apt-get update -y
-RUN sudo apt install gawk wget git diffstat unzip texinfo gcc build-essential \
-	chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils \
-	iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
+RUN sudo apt install gawk wget git diffstat unzip texinfo gcc build-essential\
+	chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils\
+	iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev\
 	python3-subunit mesa-common-dev zstd liblz4-tool file locales -y
 
 RUN git config --global user.name "Your Name"
@@ -40,9 +40,17 @@ RUN rm -rf git-2.32.0 v2.32.0.tar.gz
 RUN curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > bin/repo
 
 
-RUN export GIT_SSL_NO_VERIFY=1 && \
-	git config --global http.sslverify false && \
-	git config --global url."https://".insteadOf git://
+RUN export GIT_SSL_NO_VERIFY=1\
+	&& git config --global http.sslverify false\
+	&& git config --global url."https://".insteadOf git://\
+	# Cache for 1 hour
+	#&& git config --global credential.helper "cache --timeout=3600"
+	# Cache for 1 day
+	#&& git config --global credential.helper "cache --timeout=86400"
+	# Cache for 1 week
+	&& git config --global credential.helper "cache --timeout=604800"
+	# store credential to a file
+	#&& git config --global credential.helper 'store --file ~/.git-credentials'
 
 #RUN mkdir adv-release-bsp
 #RUN mkdir test
