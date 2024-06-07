@@ -62,13 +62,13 @@ RUN export GIT_SSL_NO_VERIFY=1\
 	&& git config --global http.sslverify false\
 	&& git config --global url."https://".insteadOf git://\
 	# Cache for 1 hour
-	#&&git config --global credential.helper "cache --timeout=3600"
+	#&& git config --global credential.helper "cache --timeout=3600"
 	# Cache for 1 day
-	#&&git config --global credential.helper "cache --timeout=86400"
+	#&& git config --global credential.helper "cache --timeout=86400"
 	# Cache for 1 week
 	&& git config --global credential.helper "cache --timeout=604800"
 	# store credential to a file
-	#&&git config --global credential.helper 'store --file ~/.git-credentials'
+	#&& git config --global credential.helper 'store --file ~/.git-credentials'
 
 
 #RUN mkdir adv-release-bsp
