@@ -75,15 +75,15 @@ RUN export GIT_SSL_NO_VERIFY=1\
 #RUN mkdir test
 
 # Sync Yocto BSP
-RUN mkdir adv-release-bsp
-WORKDIR adv-release-bsp
-RUN repo init -u git://github.com/ADVANTECH-Corp/adv-arm-yocto-bsp.git -b imx-linux-zeus -m imx8LBVA1036.xml && repo sync
+#RUN mkdir adv-release-bsp
+#WORKDIR adv-release-bsp
+#RUN repo init -u git://github.com/ADVANTECH-Corp/adv-arm-yocto-bsp.git -b imx-linux-zeus -m imx8LBVA1036.xml && repo sync
 
 # Modift tunycompress source
-RUN sed -i 's#git.alsa-project.org#github.com/alsa-project#g' sources/meta-imx/meta-sdk/recipes-multimedia/tinycompress/tinycompress_1.1.6.bb
+#RUN sed -i 's#git.alsa-project.org#github.com/alsa-project#g' sources/meta-imx/meta-sdk/recipes-multimedia/tinycompress/tinycompress_1.1.6.bb
 
 # Cerate a new build environment
-SHELL ["/bin/bash", "-c"]
+#SHELL ["/bin/bash", "-c"]
 #RUN MACHINE=imx8mprsb3720a1 DISTRO=fsl-imx-xwayland EULA=1 source imx-setup-release.sh -b build_rsb3720 && bitbake imx-image-full
 #RUN MACHINE=imx8mprsb3720a1 DISTRO=fsl-imx-xwayland EULA=1 source imx-setup-release.sh -b build_rsb3720\
 	#&&echo 'INHERIT += "rm_work"' >> conf/local.conf\
