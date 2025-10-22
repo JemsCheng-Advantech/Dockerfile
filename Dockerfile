@@ -1,6 +1,7 @@
 #Assign image to use
 #FROM advrisc/u20.04-rklbv1 
-FROM advrisc/u20.04-rklbv1
+#FROM advrisc/u20.04-rklbv1
+FROM advrisc/u20.04-imx8lbv1
 
 #Maintainer Info
 MAINTAINER adv
