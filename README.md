@@ -4,6 +4,8 @@ $ mkdir test && cd test
 $ git clone https://github.com/JemsCheng-Advantech/Dockerfile.git -b ${branch}
 $ cd Dockerfile
 # Build image
+# Yocto50
+$ docker build -t advrisc/u20.04-imx8lbv1-build .
 # Yocto40
 $ docker build -t advrisc/u20.04-imx8lbv1-build .
 # Yocto30
@@ -13,12 +15,16 @@ $ docker build -t advrisc/u18.04-imx8lbv1-build .
 $ docker images
 
 # remove the image your build
+# Yocto50
+$ docker rmi advrisc/u20.04-imx8lbv1-build
 # Yocto40
 $ docker rmi advrisc/u20.04-imx8lbv1-build
 # Yocto30
 $ docker rmi advrisc/u18.04-imx8lbv1-build
 
 # Docker run the image
+# Yocto50
+$ docker run -it --rm advrisc/u20.04-imx8lbv1-build /bin/bash
 # Yocto40
 $ docker run --privileged -it --name ${CONTAINER_NAME} -v ${WORKSPACE}:/home/adv/adv-release-bsp -v /dev:/dev advrisc/u20.04-imx8lbv1-build /bin/bash
 # Yocto30
