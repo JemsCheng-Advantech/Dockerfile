@@ -1,62 +1,48 @@
-#Assign image to use
-#FROM advrisc/u20.04-rklbv1
-#FROM advrisc/u20.04-rklbv1     #Yocto 4.0
-#FROM advrisc/u18.04-imx8lbv1   #Yocto 3.0
-FROM advrisc/u18.04-imx8lbv1
+# 使用您提供的基礎映像檔
+#FROM advrisc/u18.04-imx8lbv1
+FROM advrisc/u20.04-imx8lbv1
 
-#Maintainer Info
-MAINTAINER adv
+# Set default shell to bash
+SHELL ["/bin/bash", "-c"]
 
-#Run commands
-RUN sudo apt-get update -y
-RUN sudo apt-get install gawk wget git diffstat unzip texinfo gcc build-essential\
+# 設置環境變數
+ENV USER_NAME=adv
+ENV USER_ID=adv
+
+ENV MANIFEST_URL=git://github.com/ADVANTECH-Corp/adv-arm-yocto-bsp.git
+ENV MANIFEST_BRANCH=imx-linux-scarthgap
+#ENV MANIFEST_TAG=${SOC}LBV${TAG}.xml
+
+ENV SOC=imx8
+ENV MC=imx8mprsb3720a2
+ENV HW=rsb3720
+ENV TAG=F0138
+ENV BDIR=build_${HW}_${TAG}
+
+ENV MANIFEST_TAG=${SOC}LBV${TAG}.xml
+ENV IMAGE=imx-image-full
+
+# 安裝編譯套件
+RUN sudo apt install gawk wget git diffstat unzip texinfo gcc build-essential\
 	chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils\
 	iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev\
 	python3-subunit mesa-common-dev zstd liblz4-tool file locales -y
 
+
+# 設定工作目錄
+WORKDIR /home/${USER_NAME}/adv-release-bsp
+
+# 賦予權限
+RUN chown -R ${USER_ID}:${USER_ID} /home/${USER_NAME}/adv-release-bsp
+
+# 切換到非 root 使用者
+USER ${USER_NAME}
+
+# 定義容器啟動時的預設行為 (例如，保持開啟讓使用者可以進入)
+#CMD ["/bin/bash"]
+
 RUN git config --global user.name "Your Name"
 RUN git config --global user.email you@example.com
-
-RUN sudo apt-get install libcurl4-openssl-dev tk gettext -y
-RUN sudo apt-get install autoconf git make -y
-
-# Upgrade git
-RUN wget https://github.com/git/git/archive/v2.32.0.tar.gz
-RUN tar zxvf v2.32.0.tar.gz
-#RUN cd git-2.32.0
-
-WORKDIR git-2.32.0
-
-RUN make ./configure
-RUN ./configure --prefix=/usr
-RUN sudo apt-get install asciidoc -y
-RUN make all doc
-RUN sudo make install install-doc install-html
-
-WORKDIR /home/adv
-#USER adv
-RUN rm -rf git-2.32.0 v2.32.0.tar.gz
-
-
-#Upgrade python
-#RUN sudo apt-get install -y python-software-properties
-RUN sudo apt-get autoremove -y
-RUN sudo apt-get install -y software-properties-common
-RUN sudo add-apt-repository -y ppa:deadsnakes/ppa
-RUN sudo apt-get update
-RUN sudo apt-get install -y python3.6
-Run sudo rm /usr/bin/python3\
-	&& sudo rm /usr/bin/python3m\
-	&& sudo ln -s python3.6 /usr/bin/python3\
-	&& sudo ln -s python3.6 /usr/bin/python3m
-
-
-# Upgrade repo
-#ENV HOME /home/adv
-#SHELL ["/bin/sh", "-c"]
-#RUN mkdir bin/aaa
-RUN curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > bin/repo
-
 
 RUN export GIT_SSL_NO_VERIFY=1\
 	&& git config --global http.sslverify false\
@@ -71,23 +57,23 @@ RUN export GIT_SSL_NO_VERIFY=1\
 	#&& git config --global credential.helper 'store --file ~/.git-credentials'
 
 
-#RUN mkdir adv-release-bsp
-#RUN mkdir test
-
-# Sync Yocto BSP
-#RUN mkdir adv-release-bsp
-#WORKDIR adv-release-bsp
-#RUN repo init -u git://github.com/ADVANTECH-Corp/adv-arm-yocto-bsp.git -b imx-linux-zeus -m imx8LBVA1036.xml && repo sync
-
-# Modift tunycompress source
-#RUN sed -i 's#git.alsa-project.org#github.com/alsa-project#g' sources/meta-imx/meta-sdk/recipes-multimedia/tinycompress/tinycompress_1.1.6.bb
-
-# Cerate a new build environment
-#SHELL ["/bin/bash", "-c"]
-#RUN MACHINE=imx8mprsb3720a1 DISTRO=fsl-imx-xwayland EULA=1 source imx-setup-release.sh -b build_rsb3720 && bitbake imx-image-full
-#RUN MACHINE=imx8mprsb3720a1 DISTRO=fsl-imx-xwayland EULA=1 source imx-setup-release.sh -b build_rsb3720\
-	#&&echo 'INHERIT += "rm_work"' >> conf/local.conf\
-	#&&bitbake gstreamer1.0 && bitbake imx-image-full
-
 #CMD ["-v", "/dev:/dev", "-v", "/lib/modules:/lib/modules", "-v","/usr/src:/usr/src", "/bin/bash"]
 
+# Download Yocto Source
+RUN repo init -u ${MANIFEST_URL} -b ${MANIFEST_BRANCH} -m ${MANIFEST_TAG}
+RUN repo sync
+
+# Setup Build Environment
+RUN EULA=1 MACHINE=${MC} DISTRO=fsl-imx-xwayland source imx-setup-release.sh -b ${BDIR} && \
+	bitbake ${IMAGE} --runall=fetch && \
+	echo 'INHERIT += "rm_work"' >> conf/local.conf && \
+	echo 'INHERIT += "BB_NUMBER_THREADS = " 6 "' >> conf/local.conf && \
+	echo 'INHERIT += "PARALLEL_MAKE = " -j6 "' >> conf/local.conf && \
+	echo 'SSTATE_DIR = "${BSPDIR}//sstate-cache"' >> conf/local.conf
+
+
+#WORKDIR ${BDIR}
+#RUN bitbake ${IMAGE} --runall=fetch
+#RUN /bin/bash -c source setup-environment ${BDIR} && bitbake ${IMAGE} --runall=fetch
+
+CMD ["-v", "/dev:/dev", "-v", "/lib/modules:/lib/modules", "-v","/usr/src:/usr/src", "/bin/bash"]
