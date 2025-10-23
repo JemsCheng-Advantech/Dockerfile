@@ -27,6 +27,7 @@ WORKDIR git-2.32.0
 
 RUN make ./configure
 RUN ./configure --prefix=/usr
+RUN sudo apt-get update --fix-missing
 RUN sudo apt-get install asciidoc -y
 RUN make all doc
 RUN sudo make install install-doc install-html
