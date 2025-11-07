@@ -60,15 +60,14 @@ RUN export GIT_SSL_NO_VERIFY=1\
 #CMD ["-v", "/dev:/dev", "-v", "/lib/modules:/lib/modules", "-v","/usr/src:/usr/src", "/bin/bash"]
 
 # Download Yocto Source
-RUN repo init -u ${MANIFEST_URL} -b ${MANIFEST_BRANCH} -m ${MANIFEST_TAG}
-RUN repo sync
+RUN repo init -u ${MANIFEST_URL} -b ${MANIFEST_BRANCH} -m ${MANIFEST_TAG} && repo sync
 
 # Setup Build Environment
-RUN EULA=1 MACHINE=${MC} DISTRO=fsl-imx-xwayland source imx-setup-release.sh -b ${BDIR} && \
-	bitbake ${IMAGE} --runall=fetch && \
-	echo 'INHERIT += "rm_work"' >> conf/local.conf && \
-	echo 'INHERIT += "BB_NUMBER_THREADS = " 6 "' >> conf/local.conf && \
-	echo 'INHERIT += "PARALLEL_MAKE = " -j6 "' >> conf/local.conf && \
+RUN EULA=1 MACHINE=${MC} DISTRO=fsl-imx-xwayland source imx-setup-release.sh -b ${BDIR} &&\
+	bitbake ${IMAGE} --runall=fetch &&\
+	echo 'INHERIT += "rm_work"' >> conf/local.conf &&\
+	echo 'INHERIT += "BB_NUMBER_THREADS = " 6 "' >> conf/local.conf &&\
+	echo 'INHERIT += "PARALLEL_MAKE = " -j6 "' >> conf/local.conf &&\
 	echo 'SSTATE_DIR = "${BSPDIR}//sstate-cache"' >> conf/local.conf
 
 
